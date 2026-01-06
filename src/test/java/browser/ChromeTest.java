@@ -7,16 +7,15 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.devtools.DevTools;
 import org.openqa.selenium.devtools.HasDevTools;
+import org.openqa.selenium.devtools.v143.performance.Performance;
 import org.openqa.selenium.devtools.v143.emulation.Emulation;
 import org.openqa.selenium.devtools.v143.network.Network;
 import org.openqa.selenium.devtools.v143.network.model.ConnectionType;
+import org.openqa.selenium.devtools.v143.performance.model.Metric;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class ChromeTest {
     @Test
@@ -99,13 +98,13 @@ public class ChromeTest {
 
         driver.get("https://the-internet.herokuapp.com/geolocation");
         driver.findElement(By.xpath("//button[.='Where am I?']")).click();
-        Assert.assertEquals(driver.findElement(By.cssSelector("#lat-value")).getText(),"35.689487");
-        Assert.assertEquals(driver.findElement(By.id("long-value")).getText(),"139.691706");
+        Assert.assertEquals(driver.findElement(By.cssSelector("#lat-value")).getText(), "35.689487");
+        Assert.assertEquals(driver.findElement(By.id("long-value")).getText(), "139.691706");
         driver.quit();
     }
 
     @Test
-    void simulate3GNetworkCondition(){
+    void simulate3GNetworkCondition() {
         ChromeDriver driver = new ChromeDriver();
         DevTools devTools = driver.getDevTools();
         devTools.createSession();
@@ -133,7 +132,7 @@ public class ChromeTest {
     }
 
     @Test
-    void interceptionNetwork(){
+    void interceptionNetwork() {
         WebDriver driver = new ChromeDriver();
         DevTools devTools = ((HasDevTools) driver).getDevTools();
 
@@ -160,5 +159,21 @@ public class ChromeTest {
         });
 
         driver.get("https://www.icloud.com");
+    }
+
+    @Test
+    void openSeleniumPageAndCapturePerformanceMetrics() {
+        ChromeDriver driver = new ChromeDriver();
+        DevTools devTools = driver.getDevTools();
+        devTools.createSession();
+        devTools.send(Performance.enable(Optional.empty()));
+        List<Metric> metricList = devTools.send(Performance.getMetrics());
+        driver.get("https://www.icloud.com");
+        Assert.assertEquals(driver.getTitle(), "iCloud");
+        driver.quit();
+
+        for (Metric m : metricList) {
+            System.out.println(m.getName() + " = " + m.getValue());
+        }
     }
 }

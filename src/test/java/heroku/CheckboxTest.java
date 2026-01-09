@@ -53,6 +53,10 @@ public class CheckboxTest {
         uncheck(checkbox2);
         Assert.assertFalse(driver.findElement(By
                 .xpath("//form[@id='checkboxes']/input[2]")).isSelected());
+
+        //        driver.findElement(By.cssSelector("form#checkboxes input::nth-child(1)")).click();
+        String check = driver.findElement(By.cssSelector("form#checkboxes input::nth-child(1)")).getDomAttribute("checked");
+
     }
 
     @AfterClass

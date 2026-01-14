@@ -1,0 +1,55 @@
+package heroku;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.lang.module.FindException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class TableTest {
+    /*TC05: Web Table: Validate largest due person from a table
+    Open browser
+    Navigate to https://the-internet.herokuapp.com/tables
+    Focus on table 1
+    The person who has largest due is "Doe Jacson"*/
+
+    @Test
+    void tc05(){
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://the-internet.herokuapp.com/tables");
+      /* 1. get row index of max due -> get lastname/firstname of max due
+      * due column xpath //table[@id='table1']/tbody/tr/td[4] => row_index
+      * lastname column xpath //table[@id='table1']/tbody/tr[row_index]/td[1]
+      * firstname column xpath //table[@id='table1']/tbody/tr[row_index]/td[1]*/
+
+        List<Double> dueList = driver
+                .findElements(By.xpath("//table[@id='table1']/tbody/tr/td[4]"))
+                .stream()
+                .map(cell->Double.valueOf(cell.getText().replace("$","")))
+                .collect(Collectors.toList());
+
+        double maxDue = Collections.max(dueList);
+        int rowIndex = dueList.indexOf(maxDue) + 1;
+
+        String lastName = driver
+                .findElement(By.xpath("//table[@id='table1']/tbody/tr["+ rowIndex +"]/td[1]")).getText();
+        String firstName = driver
+                .findElement(By.xpath("//table[@id='table1'/tbody/tr["+rowIndex+"]/td[2]")).getText();
+
+        Assert.assertEquals(String.format("%s %s", firstName, lastName),"Jacson Doe");
+        driver.quit();
+
+        //todo: select 7/4/2025
+        /*driver.findElements(By.cssSelector(".ui-datepicker-group-first a")).stream()
+                .filter(el->el.getText().equals("7"))
+                .findFirst()
+                .get()
+                .click();*/
+    }
+}

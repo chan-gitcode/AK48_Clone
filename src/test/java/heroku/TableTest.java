@@ -67,13 +67,42 @@ public class TableTest {
                     personList.add(new Person(firstName, lastName, due));
                         });
 
-        personList.forEach(Person::info);
-        String maxDuePersonFullName = personList.stream()
-                .max(Comparator.comparing(Person::getDue))
-                .get()
-                .getFullname();
+//        personList.forEach(Person::info);
+//        String maxDuePersonFullName = personList.stream()
+//                .max(Comparator.comparing(Person::getDue))
+//                .get()
+//                .getFullname();
 
-        Assert.assertEquals(maxDuePersonFullName,"Jason Doe");
+        double maxDue = personList.stream().max(Comparator.comparing(Person::getDue)).get().getDue();
+        List<String> listPersonHaveMaxDue = personList.stream().filter(person -> person.getDue() == maxDue )
+                .map(Person::getFullname).toList();
+
+        Assert.assertEquals(listPersonHaveMaxDue,List.of("Jason Doe"));
+
+        driver.quit();
+    }
+
+    @Test
+    void tc07(){
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://the-internet.herokuapp.com/tables");
+
+        List<Person> personList = new ArrayList<>();
+
+        driver.findElements(By.xpath("//table[@id='table1']/tbody/tr"))
+                .forEach(row->{
+                    String lastName = row.findElement(By.xpath(".//td[1]")).getText();
+                    String firstName = row.findElement(By.xpath("./td[2]")).getText();
+                    double due = Double.parseDouble(row
+                            .findElement(By.xpath(".//td[4]")).getText().replace("$",""));
+                    personList.add(new Person(firstName, lastName, due));
+                });
+
+        double minDue = personList.stream().min(Comparator.comparing(Person::getDue)).get().getDue();
+        List<String> listPersonHaveMinDue = personList.stream().filter(person -> person.getDue() == minDue )
+                .map(Person::getFullname).toList();
+
+        Assert.assertEquals(listPersonHaveMinDue,List.of("John Smith","Tim Conway"));
 
         driver.quit();
     }

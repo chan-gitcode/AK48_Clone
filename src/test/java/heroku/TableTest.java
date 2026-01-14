@@ -7,9 +7,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.lang.module.FindException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TableTest {
@@ -51,5 +49,32 @@ public class TableTest {
                 .findFirst()
                 .get()
                 .click();*/
+    }
+
+    @Test
+    void tc06(){
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://the-internet.herokuapp.com/tables");
+
+        List<Person> personList = new ArrayList<>();
+
+        driver.findElements(By.xpath("//table[@id='table1']/tbody/tr"))
+                .forEach(row->{
+                    String lastName = row.findElement(By.xpath(".//td[1]")).getText();
+                    String firstName = row.findElement(By.xpath("./td[2]")).getText();
+                    double due = Double.parseDouble(row
+                            .findElement(By.xpath(".//td[4]")).getText().replace("$",""));
+                    personList.add(new Person(firstName, lastName, due));
+                        });
+
+        personList.forEach(Person::info);
+        String maxDuePersonFullName = personList.stream()
+                .max(Comparator.comparing(Person::getDue))
+                .get()
+                .getFullname();
+
+        Assert.assertEquals(maxDuePersonFullName,"Jason Doe");
+
+        driver.quit();
     }
 }
